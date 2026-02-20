@@ -105,9 +105,24 @@ queries lentas
 #  Cómo Ejecutar
 
 1)  Configurar connection string en appsettings.json\
+
+"ConnectionStrings": {
+  "Default": "Server=localhost;Database=ProductCatalogDb;Trusted_Connection=True;TrustServerCertificate=True"
+}
+
 2)  Ejecutar migraciones EF Core\
+
+dotnet ef migrations add InitialCreate -p ProductCatalog.Infrastructure -s ProductCatalog.Api
+dotnet ef database update -p ProductCatalog.Infrastructure -s ProductCatalog.Api
+
 3)  dotnet run en Api\
+
+dotnet run --project ProductCatalog.Api
+dotnet run --project ProductCatalog.Api
+
 4)  dotnet run en Blazor
+
+dotnet run --project ProductCatalog.Blazor
 
 ------------------------------------------------------------------------
 
