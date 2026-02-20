@@ -1,4 +1,4 @@
-# 📦 Product Catalog -- Prueba Técnica (.NET 10)
+#  Product Catalog -- Prueba Técnica (.NET 10)
 
 Prueba de concepto full-stack implementando DDD estricto, CQRS, eventos
 de dominio, behaviors transversales, EF Core avanzado, Minimal APIs y
@@ -6,7 +6,7 @@ frontend en Blazor WebAssembly.
 
 ------------------------------------------------------------------------
 
-# 🏆 Objetivo
+#  Objetivo
 
 -   Modelado de dominio real
 -   Separación estricta por capas
@@ -19,7 +19,7 @@ frontend en Blazor WebAssembly.
 
 ------------------------------------------------------------------------
 
-# 🧠 Arquitectura General
+#  Arquitectura General
 
 ``` mermaid
 flowchart TD
@@ -39,7 +39,7 @@ flowchart TD
 
 ------------------------------------------------------------------------
 
-# 📦 Estructura del Proyecto
+#  Estructura del Proyecto
 
 ProductCatalog.Domain\
 ProductCatalog.Application\
@@ -50,7 +50,7 @@ ProductCatalog.UnitTests
 
 ------------------------------------------------------------------------
 
-# 🧱 Dominio
+#  Dominio
 
 Entidad principal: Product
 
@@ -63,7 +63,7 @@ Eventos de dominio: - ProductCreated - ProductChanged
 
 ------------------------------------------------------------------------
 
-# 🚦 Application
+#  Application
 
 Implementación de CQRS con:
 
@@ -76,7 +76,7 @@ Idempotency
 
 ------------------------------------------------------------------------
 
-# 🗄 Infrastructure
+#  Infrastructure
 
 EF Core configurado con: - Índice único en SKU - ValueConverters para
 Money y Sku - Precision decimal 18,2 - Retry automático - Interceptor de
@@ -84,7 +84,7 @@ queries lentas
 
 ------------------------------------------------------------------------
 
-# 🖥 Blazor WASM
+#  Blazor WASM
 
 -   Validación por campo
 -   Validación asíncrona de SKU
@@ -93,7 +93,7 @@ queries lentas
 
 ------------------------------------------------------------------------
 
-# 🧪 Testing
+#  Testing
 
 -   Validación de invariantes
 -   Publicación de eventos
@@ -102,7 +102,7 @@ queries lentas
 
 ------------------------------------------------------------------------
 
-# 🚀 Cómo Ejecutar
+#  Cómo Ejecutar
 
 1)  Configurar connection string en appsettings.json\
 2)  Ejecutar migraciones EF Core\
