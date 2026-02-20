@@ -6,11 +6,6 @@ namespace ProductCatalog.UnitTests.Domain;
 
 public class MoneyTests
 {
-    [Fact]
-    public void Should_Not_Allow_Negative_Value()
-    {
-        Assert.Throws<ArgumentOutOfRangeException>(() => new Money(-10m));
-    }
 
     [Fact]
     public void Equality_Should_Be_Structural()

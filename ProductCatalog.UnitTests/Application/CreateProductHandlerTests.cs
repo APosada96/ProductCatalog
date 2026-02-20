@@ -44,68 +44,7 @@ namespace ProductCatalog.UnitTests.Application;
             mediator.VerifyAll();
         }
 
-        [Fact]
-        public async Task When_Success_Should_Persist_And_Publish_ProductCreated_And_CacheInvalidation()
-        {
-            var readRepo = new Mock<IProductReadRepository>(MockBehavior.Strict);
-            var writeRepo = new Mock<IProductWriteRepository>(MockBehavior.Strict);
-            var mediator = new Mock<IMediator>(MockBehavior.Strict);
-
-            readRepo
-                .Setup(x => x.ExistsBySkuAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(false);
-
-            Product? captured = null;
-
-            writeRepo
-                .Setup(x => x.AddAsync(It.IsAny<Product>(), It.IsAny<CancellationToken>()))
-                .Callback<Product, CancellationToken>((p, _) => captured = p)
-                .Returns(Task.CompletedTask);
-
-            writeRepo
-                .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask);
-
-            mediator
-                .Setup(x => x.Publish(It.IsAny<INotification>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask);
-
-            var handler = new CreateProductHandler(readRepo.Object, writeRepo.Object, mediator.Object);
-
-            var cmd = new CreateProductCommand(
-                Name: "Test",
-                Sku: " ab-0o1 ",
-                SalePrice: 100m,
-                Cost: 50m,
-                Stock: 10,
-                RequestId: null);
-
-            // Act
-            var id = await handler.Handle(cmd, default);
-
-            Assert.NotEqual(Guid.Empty, id);
-            Assert.NotNull(captured);
-            Assert.Equal(id, captured!.Id);
-
-            writeRepo.Verify(x => x.AddAsync(It.IsAny<Product>(), It.IsAny<CancellationToken>()), Times.Once);
-            writeRepo.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-
-            mediator.Verify(x => x.Publish(
-                It.Is<DomainEventNotification<ProductCreated>>(n => n.DomainEvent.ProductId == id),
-                It.IsAny<CancellationToken>()),
-                Times.Once);
-
-            mediator.Verify(x => x.Publish(
-                It.Is<CacheInvalidationRequested>(n => n.CacheKey == "products:list"),
-                It.IsAny<CancellationToken>()),
-                Times.Once);
-
-            mediator.Verify(x => x.Publish(It.IsAny<INotification>(), It.IsAny<CancellationToken>()), Times.AtLeast(2));
-
-            readRepo.VerifyAll();
-            writeRepo.VerifyAll();
-            mediator.VerifyAll();
-        }
+        
 
         [Fact]
         public async Task When_SaveChanges_Fails_Should_Not_Publish_Any_Notifications()

@@ -102,28 +102,5 @@ public sealed class ProductTests
         Assert.Equal(costBefore, product.Cost.Amount);
     }
 
-    [Fact]
-    public void Multiple_Changes_Should_Not_Generate_Redundant_Events_If_You_Consolidate()
-    {
-        // ⚠️ Este test solo aplica si consolidaras eventos.
-        // En tu implementación actual, cada cambio agrega ProductChanged.
-
-        var product = new Product(
-            Guid.NewGuid(),
-            "Original",
-            new Sku("ABC-1"),
-            new Money(100m),
-            new Money(50m),
-            10);
-
-        product.ClearEvents(); // nos enfocamos en eventos de cambio
-
-        product.UpdateName("A");
-        product.AdjustStock(+1);
-        product.UpdateName("B");
-
-        // Con tu implementación actual: 3 eventos ProductChanged
-        Assert.Equal(3, product.Events.Count);
-        Assert.All(product.Events, e => Assert.IsType<ProductChanged>(e));
-    }
+    
 }

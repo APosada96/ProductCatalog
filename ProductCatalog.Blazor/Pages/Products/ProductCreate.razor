@@ -146,7 +146,6 @@
         {
             _globalError = ex.Detail ?? ex.Message;
 
-            // errores por campo desde ProblemDetails
             if (ex.FieldErrors is not null)
             {
                 foreach (var kv in ex.FieldErrors)
