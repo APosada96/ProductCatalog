@@ -1,0 +1,169 @@
+﻿@page "/products/{Id:guid}"
+@inject ProductCatalog.Blazor.Services.ProductsApi ProductsApi
+@inject NavigationManager Nav
+
+@using Microsoft.AspNetCore.Components.Forms
+@using ProductCatalog.Blazor.Models
+@using ProductCatalog.Blazor.Services
+
+<h3>Editar Producto</h3>
+
+@if (_loading)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    @if (!string.IsNullOrWhiteSpace(_globalError))
+    {
+        <div class="alert alert-danger">@_globalError</div>
+    }
+
+    <EditForm EditContext="_editContext" OnValidSubmit="SaveAsync">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            <InputText class="form-control" @bind-Value="_model.Name" />
+            <ValidationMessage For="() => _model.Name" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">SKU (no editable)</label>
+            <InputText class="form-control" @bind-Value="_model.Sku" disabled />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Precio Venta</label>
+            <InputNumber class="form-control" @bind-Value="_model.SalePrice" />
+            <ValidationMessage For="() => _model.SalePrice" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Costo</label>
+            <InputNumber class="form-control" @bind-Value="_model.Cost" />
+            <ValidationMessage For="() => _model.Cost" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Stock</label>
+            <InputNumber class="form-control" @bind-Value="_model.Stock" />
+            <ValidationMessage For="() => _model.Stock" />
+        </div>
+
+        <button class="btn btn-primary" type="submit" disabled="@(!_isValid || _saving)">
+            @(_saving ? "Guardando..." : "Guardar cambios")
+        </button>
+
+        <button class="btn btn-link" type="button" @onclick='() => Nav.NavigateTo("/products")'>
+            Volver
+        </button>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private readonly ProductFormModel _model = new();
+    private EditContext _editContext = default!;
+    private ValidationMessageStore _messages = default!;
+
+    private bool _loading = true;
+    private bool _saving;
+    private bool _isValid;
+    private string? _globalError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _editContext = new EditContext(_model);
+        _messages = new ValidationMessageStore(_editContext);
+
+        _editContext.OnFieldChanged += (_, __) =>
+        {
+            _globalError = null;
+            _isValid = _editContext.Validate();
+            StateHasChanged();
+        };
+
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _globalError = null;
+
+        try
+        {
+            var res = await ProductsApi.GetByIdAsync(Id);
+            var dto = res.Data;
+
+            if (dto is null)
+            {
+                _globalError = "Producto no encontrado.";
+                return;
+            }
+
+            _model.Name = dto.Name;
+            _model.Sku = dto.Sku;
+            _model.SalePrice = dto.SalePrice;
+            _model.Cost = dto.Cost;
+            _model.Stock = dto.Stock;
+
+            _isValid = _editContext.Validate();
+        }
+        catch (Exception ex)
+        {
+            _globalError = ex.Message;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task SaveAsync()
+    {
+        _saving = true;
+        _globalError = null;
+
+        try
+        {
+            _model.RequestId ??= Guid.NewGuid();
+
+            var req = new UpdateProductRequest(
+                _model.Name,
+                _model.SalePrice,
+                _model.Cost,
+                _model.Stock,
+                _model.RequestId);
+
+            await ProductsApi.UpdateAsync(Id, req);
+            Nav.NavigateTo("/products");
+        }
+        catch (ApiException ex)
+        {
+            _globalError = ex.Detail ?? ex.Message;
+
+            if (ex.FieldErrors is not null)
+            {
+                foreach (var kv in ex.FieldErrors)
+                {
+                    var field = new FieldIdentifier(_model, kv.Key);
+                    foreach (var msg in kv.Value)
+                        _messages.Add(field, msg);
+                }
+                _editContext.NotifyValidationStateChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            _globalError = ex.Message;
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}

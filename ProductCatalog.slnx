@@ -1,0 +1,20 @@
+<Solution>
+  <Folder Name="/API/">
+    <Project Path="ProductCatalog.Api/ProductCatalog.Api.csproj" />
+  </Folder>
+  <Folder Name="/Application/">
+    <Project Path="ProductCatalog.Application/ProductCatalog.Application.csproj" Id="7686c62f-2f8e-4107-baac-84ee33a3d063" />
+  </Folder>
+  <Folder Name="/Domain/">
+    <Project Path="ProductCatalog.Domain/ProductCatalog.Domain.csproj" Id="ce2e3567-879f-4f38-accd-efd4c1dde426" />
+  </Folder>
+  <Folder Name="/Infrastructure/">
+    <Project Path="ProductCatalog.Infrastructure/ProductCatalog.Infrastructure.csproj" Id="85efb3a6-ca95-476c-9a2a-9007e45a810e" />
+  </Folder>
+  <Folder Name="/Presentation/">
+    <Project Path="ProductCatalog.Blazor/ProductCatalog.Blazor.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="ProductCatalog.UnitTests/ProductCatalog.UnitTests.csproj" Id="cd7da9cd-3247-47c5-abe5-8aaf02d8cbed" />
+  </Folder>
+</Solution>

@@ -1,0 +1,130 @@
+﻿@page "/products"
+@inject ProductCatalog.Blazor.Services.ProductsApi ProductsApi
+@inject NavigationManager Nav
+
+<h3>Products</h3>
+
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick='() => Nav.NavigateTo("/products/new")'>Nuevo</button>
+</div>
+
+@if (_loading)
+{
+    <p>Cargando...</p>
+}
+else if (_error is not null)
+{
+    <div class="alert alert-danger">@_error</div>
+}
+else if (_result is not null)
+{
+    <div class="mb-2">
+        <strong>Fuente:</strong> @_result.Source
+        <span class="ms-3"><strong>Tiempo:</strong> @_result.ElapsedMs ms</span>
+        <span class="ms-3"><strong>Total:</strong> @_result.Data.Total</span>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>SKU</th>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Costo</th>
+                <th>Margen %</th>
+                <th>Stock</th>
+                <th style="width: 180px;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in _result.Data.Items)
+            {
+                <tr>
+                    <td>@p.Sku</td>
+                    <td>@p.Name</td>
+                    <td>@p.SalePrice</td>
+                    <td>@p.Cost</td>
+                    <td>@p.MarginPercent</td>
+                    <td>@p.Stock</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-secondary me-2"
+                                @onclick='() => Nav.NavigateTo($"/products/{p.Id}")'>
+                            Editar
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger"
+                                @onclick='() => Delete(p.Id)'>
+                            Eliminar
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary" disabled="@(_pageNumber <= 1)" @onclick="Prev">Anterior</button>
+        <button class="btn btn-outline-primary" disabled="@IsLastPage" @onclick="Next">Siguiente</button>
+    </div>
+}
+
+@code {
+    private bool _loading = true;
+    private string? _error;
+
+    private ProductCatalog.Blazor.Models.QueryResult<ProductCatalog.Blazor.Models.PagedResult<ProductCatalog.Blazor.Models.ProductDto>>? _result;
+
+    private int _pageNumber = 1;
+    private int _pageSize = 10;
+
+    protected override async Task OnInitializedAsync()
+        => await Load();
+
+    private bool IsLastPage
+        => _result is null || (_pageNumber * _pageSize) >= _result.Data.Total;
+
+    private async Task Load()
+    {
+        _loading = true;
+        _error = null;
+
+        try
+        {
+            _result = await ProductsApi.GetProductsAsync(_pageNumber, _pageSize, "Name", "asc");
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task Prev()
+    {
+        if (_pageNumber <= 1) return;
+        _pageNumber--;
+        await Load();
+    }
+
+    private async Task Next()
+    {
+        if (IsLastPage) return;
+        _pageNumber++;
+        await Load();
+    }
+
+    private async Task Delete(Guid id)
+    {
+        try
+        {
+            await ProductsApi.DeleteAsync(id);
+            await Load();
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+}
